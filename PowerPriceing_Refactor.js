@@ -40,26 +40,33 @@ function codeTest (msg) {
     const messagePayload = [];
 
     const calcPrice = () => {
-        return (fixedCost + msg.data.attributes.current_price).toFixed(2).toString();
+        return Number(fixedCost + msg.data.attributes.current_price);
     };
 
     const calcTomorrowPrice = (i) => {
-        return (fixedCost + msg.data.attributes.tomorrow[(hour+i-23)]).toFixed(2).toString();
+        return Number(fixedCost + msg.data.attributes.tomorrow[(hour+i-23)]);
     };
 
     const calcTodayPrice = (i) => {
-        return (fixedCost + msg.data.attributes.today[(hour+i)]).toFixed(2).toString();
+        return Number(fixedCost + msg.data.attributes.today[(hour+i)]);
     };
 
     const calculatedPrice = (i, hour) => {
         return i === 0 ?
-            { payload:calcPrice()} :
+            calcPrice() :
                 (hour + i > 23) ?
-                    {payload:calcTomorrowPrice(i)}: {payload:calcTodayPrice(i)};
+                    calcTomorrowPrice(i): calcTodayPrice(i);
     };
 
     for (let i = 0; i < 24; i++) {
-        messagePayload.push(calculatedPrice(i, hour));
+        let calcResult = calculatedPrice(i, hour);
+
+        if(calcResult <= fixedCost){
+            messagePayload.push({payload:'NaN'});
+        }
+        else {
+            messagePayload.push({payload:calcResult.toFixed(2)});
+        }
     }
 
     return messagePayload;
