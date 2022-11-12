@@ -29,26 +29,84 @@ let msg = { data:{
     }
 };
 
+
 //Wrapper to run code as function!
 function codeTest (msg) {
 
     //NodeRed function start
     let now = new Date();
     let hour = now.getHours();
-    let fixedCost = 1.76;
+    //let fixedCost = 1.76;
+
+    const Season = {
+        Summer: 'Summer',
+        Winter: 'Winter',
+    };
+
+    const Rate = {
+        Low: 'Low',
+        High: 'High',
+        Peak: 'Peak'
+    };
+
+    const transportPriceMatrix = {
+        Summer : {
+            Low: 1.214862,
+            High: 1.288862,
+            Peak: 1.643862
+        },
+        Winter: {
+            Low: 1.214862,
+            High: 1.510762,
+            Peak: 2.398262
+        },
+    };
 
     const messagePayload = [];
 
+    const fixedCost = () => {
+        let fc = transportPriceMatrix[getSeason()][getRate()]
+        console.log("using fixed cost:", fc);
+        return fc;
+    };
+
+    const getSeason = () => {
+        let month = now.getMonth();
+        if (month < 10 && month > 3){
+                console.log("Season is summer, month is: ", month);
+                return Season.Summer;
+        }
+        else {
+            console.log("Season is winter, month is: ", month);
+            return Season.Winter;
+        }
+    };
+
+    const getRate = () => {
+       if(hour < 5 && hour > -1){
+           console.log("Rate is Low, hour is: ", hour);
+           return Rate.Low;
+       }
+       if(hour < 22 && hour > 16){
+           console.log("Rate is High, hour is: ", hour);
+           return Rate.Peak;
+       }
+       else {
+           console.log("Rate is High, hour is: ", hour);
+           return Rate.High;
+       }
+    };
+
     const calcPrice = () => {
-        return Number(fixedCost + msg.data.attributes.current_price);
+        return Number(fixedCost() + msg.data.attributes.current_price);
     };
 
     const calcTomorrowPrice = (i) => {
-        return Number(fixedCost + msg.data.attributes.tomorrow[(hour+i-23)]);
+        return Number(fixedCost() + msg.data.attributes.tomorrow[(hour+i-23)]);
     };
 
     const calcTodayPrice = (i) => {
-        return Number(fixedCost + msg.data.attributes.today[(hour+i)]);
+        return Number(fixedCost() + msg.data.attributes.today[(hour+i)]);
     };
 
     const calculatedPrice = (i, hour) => {
@@ -61,7 +119,7 @@ function codeTest (msg) {
     for (let i = 0; i < 24; i++) {
         let calcResult = calculatedPrice(i, hour);
 
-        if(calcResult <= fixedCost){
+        if(calcResult <= fixedCost()){
             messagePayload.push({payload:'NaN'});
         }
         else {
