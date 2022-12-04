@@ -70,7 +70,7 @@ function codeTest (msg) {
         let day = now.getDay();
         let lastDayOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0);
 
-        if(day === lastDayOfMonth){
+        if(day == lastDayOfMonth.getDay()){
             month++;
         }
 
