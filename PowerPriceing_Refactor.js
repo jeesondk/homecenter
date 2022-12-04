@@ -68,9 +68,9 @@ function codeTest (msg) {
         //handling last day of month calculations
         let month = now.getMonth();
         let day = now.getDay();
-        let lastDayOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0);
+        let lastDayOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDay();
 
-        if(day == lastDayOfMonth.getDay()){
+        if(day == lastDayOfMonth){
             month++;
         }
 
